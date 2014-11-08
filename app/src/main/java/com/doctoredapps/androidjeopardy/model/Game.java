@@ -2,7 +2,6 @@ package com.doctoredapps.androidjeopardy.model;
 
 import android.database.Observable;
 import android.support.annotation.IntDef;
-import android.support.annotation.IntegerRes;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,14 +13,30 @@ import java.util.HashMap;
 public class Game implements Round.OnRoundEndedListener{
 
     private final Round[] rounds;
-    private final HashMap<String, Player> players;
+    private final HashMap<String, Player> mPlayers;
 
-    private Round currentRound;
+    private Round mCurrentRound;
     private int currentRoundIndex;
 
     private Player playerWithControl;
 
     private GameStateObservable gameStateObservable;
+
+    public void registerOnPlayerControlChangedListner(Player.OnPlayerControlChanged listener) {
+
+    }
+
+    public void registerOnGameStateChangedListner(OnGameStateChangedListner listener) {
+
+    }
+
+    public String getPlayerInLastPlace() {
+        return null;
+    }
+
+    public Round getCurrentRound() {
+        return mCurrentRound;
+    }
 
 
     @Retention(RetentionPolicy.SOURCE)
@@ -35,28 +50,35 @@ public class Game implements Round.OnRoundEndedListener{
 
     Game(Round[] rounds, HashMap<String, Player> players) {
         this.rounds = rounds;
-        this.players = players;
-        this.currentRound = rounds[currentRoundIndex];
-        this.currentRound.registerObserver(this);
+        this.mPlayers = players;
+        this.mCurrentRound = rounds[currentRoundIndex];
+        this.mCurrentRound.registerObserver(this);
         this.gameStateObservable = new GameStateObservable();
     }
 
     public void incrementPlayerScore(String playerId) {
-        players.get(playerId).increaseScoreBy(currentRound.getCurrentAnswer().getScoreValue());
+        mPlayers.get(playerId).increaseScoreBy(mCurrentRound.getCurrentAnswer().getScoreValue());
     }
 
     public void decrementPlayerScore(String playerId) {
-        players.get(playerId).decreaseScoreBy(currentRound.getCurrentAnswer().getScoreValue());
+        mPlayers.get(playerId).decreaseScoreBy(mCurrentRound.getCurrentAnswer().getScoreValue());
     }
 
     public void givePlayerControl(String playerId) {
-        playerWithControl.setInControl(false);
+        playerWithControl.setIsInControl(false);
 
-        Player player = players.get(playerId);
+        Player player = mPlayers.get(playerId);
         playerWithControl = player;
-        player.setInControl(true);
+        player.setIsInControl(true);
     }
 
+    public Player getPlayerWithId(String id) {
+        return mPlayers.get(id);
+    }
+
+    public HashMap<String, Player> getPlayers() {
+        return mPlayers;
+    }
 
     @Override
     public void onRoundEnded() {
@@ -76,7 +98,7 @@ public class Game implements Round.OnRoundEndedListener{
             gameStateObservable.notifyGameStateChanged(GAME_STATE_NEW_ROUND);
         }
 
-        currentRound = rounds[++currentRoundIndex];
+        mCurrentRound = rounds[++currentRoundIndex];
 
     }
 
@@ -95,6 +117,7 @@ public class Game implements Round.OnRoundEndedListener{
             }
         }
     }
+
 
     /**
      * Created by MattDupree on 10/26/14.

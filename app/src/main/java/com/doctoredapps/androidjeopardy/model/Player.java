@@ -7,32 +7,33 @@ import android.database.Observable;
  */
 public class Player {
 
-    private int score;
-    private String finalJeopardyAnswer;
-    private final String id;
-    private boolean isInControl;
+    private int mScore;
+    private String mFinalJeopardyAnswer;
+    private final String mId;
+    private boolean mIsInControl;
 
     private PlayerControlObservable playerControlObservable;
     private PlayerScoreObservable playerScoreObservable;
 
     public Player(String id) {
-        this.id = id;
+        this.mId = id;
         playerControlObservable = new PlayerControlObservable();
         playerScoreObservable = new PlayerScoreObservable();
     }
 
     void increaseScoreBy(int scoreValue) {
-        score += scoreValue;
-        playerScoreObservable.notifyObserversScoreChanged(id);
+        mScore += scoreValue;
+        playerScoreObservable.notifyObserversScoreChanged(mId);
     }
 
     void decreaseScoreBy(int scoreValue) {
-        score -= scoreValue;
-        playerScoreObservable.notifyObserversScoreChanged(id);
+        mScore -= scoreValue;
+        playerScoreObservable.notifyObserversScoreChanged(mId);
     }
 
-    void setInControl(boolean inControl) {
-        isInControl = inControl;
+    void setIsInControl(boolean mIsInControl) {
+        this.mIsInControl = mIsInControl;
+        playerControlObservable.notifyPlayerControlChanged(mId);
     }
 
     public void registerOnPlayerScoreChangedListener(OnPlayerScoreChangedListener listener) {

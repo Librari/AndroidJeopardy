@@ -2,6 +2,8 @@ package com.doctoredapps.androidjeopardy.model;
 
 import android.database.Observable;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,39 +13,76 @@ import java.util.List;
  */
 public class Round extends Observable<Round.OnRoundEndedListener> {
 
-    private final ArrayList<Category> categories;
-    private final HashMap<Category, Answer[]> answers;
-    private Answer currentAnswer;
+    private final ArrayList<Category> mCategories;
+    private final HashMap<Category, Answer[]> mAnswers;
+    private final HashMap<Category, List<Answer>> mFinishedAnswers;
+    private Answer mCurrentAnswer;
 
     private Round(ArrayList<Category> categories, HashMap<Category, Answer[]> answers) {
-        this.categories = categories;
-        this.answers = answers;
+        mCategories = categories;
+        mAnswers = answers;
+        mFinishedAnswers = new HashMap<Category, List<Answer>>(mAnswers.size());
+        initFinishedAnswersContainer(mFinishedAnswers);
     }
 
-    public static Round fromResource() {
+    private void initFinishedAnswersContainer(HashMap<Category, List<Answer>> finishedAnswers) {
+
+        for (Category category : mCategories) {
+            int capacity = mAnswers.get(category).length;
+            finishedAnswers.put(category, new ArrayList<Answer>(capacity));
+        }
+
+    }
+
+    static Round fromJSON(JSONObject json) {
+
+
+
+
         return null;
     }
 
-    public List<Category> getCategories() {
-        return categories;
+    List<Category> getCategories() {
+        return mCategories;
     }
 
-    public List<Answer> getCategoryAnswers(Category category) {
+    List<Answer> getCategoryAnswers(Category category) {
         return null;
     }
 
-    public void setCurrentAnswer(Answer currentAnswer) {
-        this.currentAnswer = currentAnswer;
+    void setCurrentAnswer(Answer currentAnswer) {
+        this.mCurrentAnswer = currentAnswer;
     }
 
-    public Answer getCurrentAnswer() {
-        return currentAnswer;
+    Answer getCurrentAnswer() {
+        return mCurrentAnswer;
+    }
+
+    void finishCurrentAnswer() {
+
+        List<Answer> answers = mFinishedAnswers.get(mCurrentAnswer.getCategory());
+        answers.add(mCurrentAnswer);
+
+        if (isRoundFinished()) {
+            notifyRoundEnded();
+        }
+
+    }
+
+    private void notifyRoundEnded() {
+        for (OnRoundEndedListener listener : mObservers) {
+            listener.onRoundEnded();
+        }
+    }
+
+    private boolean isRoundFinished() {
+        return false;
     }
 
     /**
-     * Created by MattDupree on 10/26/14.
+     * @author MattDupree on 10/26/14.
      */
     static interface OnRoundEndedListener {
-        void onRoundEnded();
+        public void onRoundEnded();
     }
 }

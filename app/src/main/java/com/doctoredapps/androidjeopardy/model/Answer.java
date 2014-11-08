@@ -18,4 +18,8 @@ public class Answer {
     public int getScoreValue() {
         return scoreValue;
     }
+
+    public Category getCategory() {
+        return category;
+    }
 }
